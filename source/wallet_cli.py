@@ -16,47 +16,83 @@ import config as cnf
 API_KEY = "6f7e01bc443c48b985918a96cbc3b85b"
 PORT = None
 
+GREEN = "\033[1;32;40m"
+BLUE = "\033[1;34;40m"
+YELLOW = "\033[1;33;40m"
+WHITE = "\033[1;37;40m"
+RED = "\033[1;31;40m"
+EOF = "\033[0m"
+
+def generate_private(private_key):
+	if private_key == 0:
+		private_key = wallet.get_private_key()
+	wif_key = wallet.convert_to_WIF(private_key)
+	bitcoin_address = wallet.get_bitcoin_address(private_key)
+	f = open('public_address', 'a')
+	f.write(bitcoin_address + "\n")
+	print(YELLOW + "Your public address is: " + EOF + bitcoin_address + YELLOW + "\nYou can find it in the file address")
+	print(YELLOW + "Your private key: " + EOF + private_key)
+	print(YELLOW + "Your private key in wif format is: " + EOF)
+	print(wif_key)
+	print(RED + "Please keep it in secret!!!")
+	return private_key
+
+def import_command(arg):
+	try:
+		f = open(arg, 'r')
+		read = f.read()
+		if len(read) != 52:
+			raise ImportError
+		private_key = wallet.WIF_to_key(read)
+		private_key = generate_private(private_key)
+		return private_key
+	except IOError:
+		print(RED + "Usage:\timport /path/to/file/with/WIF/Private/Key")
+	except ImportError:
+		print(RED + "Wrong import key")
 
 class Cli(cmd.Cmd):
 	def __init__(self):
 		cmd.Cmd.__init__(self)
-		self.prompt = "\033[1;32;40m"+"฿ "
-		self.intro  = "\033[1;31;40m\t\tWelcome to the bitcoin wallet\n\033[1;34;40mHow to use? 'help'!!"
-		self.doc_header ="\033[1;33;40mFor detail information use 'help _command_')"
+		self.prompt = GREEN+"฿ "
+		self.intro  = GREEN+"\t\tWelcome to the bitcoin wallet :)\n"+ BLUE +"How to use? Type 'help'."
+		self.doc_header = YELLOW+"For detail information use 'help' command"
 		self.transaction = 1
 		self.swtransaction = 1
 		self.private_key = '0'
 
+	"""
+	Generating new private key and public key. Bitcoin is address to the file.
+	"""
 	def do_new(self, args):
-		"""'new' is used for generating private and 
-		public keys. Bitcoin address is in the file."""
-		self.private_key = output(0)
+		self.private_key = generate_private(0)
 	
+	"""
+	Import private key (import in a WIF)
+	"""
 	def do_import(self, args):
-		"""import [file...] - import private key (import in a WIF)"""
 		if len(args.split(' ')) == 1:
 			self.private_key = import_command(args)
 		else:
-			print("\033[1;31;40musage\timport /path/to/file/with/WIF/Private/Key\n")
+			print(RED + "Usage:\timport /path/to/file/with/WIF/Private/Key")
 
+	"""
+	recipient address and amount
+	"""
 	def do_send(self, args):
-		"""send get three parameters flag: -t means create transaction for broadcating to testnet or -p means broadcas to Pitcoin
-		 recipient and amount and build, sign and serialize transaction"""
-
 		if self.private_key == '0':
-			print("\033[1;31;40mImport private key firstly!")
+			print(RED + "Import private key firstly!")
 			return
 
 		args = args.split(' ')
-		if len(args) >= 2:
-			if args[0] == '-p':
-				self.transaction = wallet.send(args[1], int(args[2]), self.private_key, "Pitcoin")
-			else:
-				self.transaction = wallet.send(args[1], int(args[2]), self.private_key, "Testnet")
+		if len(args) == 2:
+			self.transaction = wallet.send(args[0], int(args[1]), self.private_key, "Pitcoin")
 			if self.transaction != None:
 				print(self.transaction)
+			else:
+				print(RED + "Something went wrong.")
 		else:
-			print("\033[1;31;40musage\n\tsend -flag address_of_recipient amount\n")
+			print(RED + "Usage:\tsend recipient_address amount\n")
 
 	def do_broadcast(self, args):
 		""" broadcast - send POST request with serialized transaction data to
@@ -79,17 +115,16 @@ class Cli(cmd.Cmd):
 		addition)"""
 		args = args.split(' ')
 		if (len(args) != 2):
-			print("\033[1;31;40musage:\nbalance -t(-p) address")
+			print(RED + "Usage:\nbalance [-p|-t] address")
 			return
 		if args[0] == '-t':
-			which = "Testnet"
+			utxo.get_balance(args[1])
 		else:
-			which = "Pitcoin"
-		utxo_set = utxo.get_utxo_set(which, args[1])
-		if utxo_set == None:
-			return
-		balance = utxo.check_balance(utxo_set)
-		print("\033[1;33;40mYour balance is\t\033[1;37;40m" + str(balance))
+			utxo_set = utxo.get_utxo_set("Pitcoin", args[1])
+			if utxo_set == None:
+				return
+			balance = utxo.check_balance(utxo_set)
+			print(YELLOW + "Your balance is\t" + str(balance))
 
 	def get_data(self):
 		data = {}
@@ -100,34 +135,12 @@ class Cli(cmd.Cmd):
 		"""exit"""
 		print("\033[1;34;40m\nBye, have a nice day!")
 		exit(0)
-
-def output(private_key):
-	if private_key == 0:
-		private_key = wallet.get_private_key()
-	print("\033[1;33;40mYour private key: \033[1;37;40m" + private_key + "\033[1;31;40m\nPlease keep it in secret!!!")
-	wif_key = wallet.convert_to_WIF(private_key)
-	print("\033[1;33;40mYour private key in wif format is: \033[1;37;40m")
-	print(wif_key)
-	bitcoin_address = wallet.get_bitcoin_address(private_key)
-	print("\033[1;33;40mYour public address is: \033[1;37;40m" + bitcoin_address + "\033[1;33;40m\nYou can find it in the file address\033[1;37;40m")
-	f = open('address', 'a')
-	f.write(bitcoin_address + "\n")
-	return private_key
-
-def import_command(arg):
-	try:
-		f = open(arg, 'r')
-		private_key = wallet.WIF_to_key(f.read())
-		private_key = output(private_key)
-		return private_key
-	except IOError:
-		print("\033[1;31;40musage:\timport /path/to/file/with/WIF/Private/Key\n")
 	
 def get_current_private_key():
 	print("Enter your private key:\t")
 	private_key = input()
 	if (len(private_key) != 64 and len(private_key) != 51):
-		print("\033[1;31;40mInvalid private key\n")
+		print(RED + "Invalid private key\n")
 		exit(0)
 	if len(private_key) != 64:
 		private_key = wallet.WIF_to_key(private_key)

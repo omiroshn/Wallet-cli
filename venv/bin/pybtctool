@@ -1,4 +1,4 @@
-#!/Users/omiroshn/Desktop/Genesis/venv/bin/python3.7
+#!/Users/omiroshn/Desktop/Genesis/venv/bin/python3
 import sys, json, re
 from bitcoin import *
 

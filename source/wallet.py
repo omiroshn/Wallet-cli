@@ -184,8 +184,11 @@ def get_raw_transaction(inputs_info, addr, my_addr, amount, balance, privkey, ou
 	return sig_key, outputs, raws_inputiki 
 
 def send(addr, amount, privkey, where):
+	print("1")
 	my_addr = get_bitcoin_address(privkey)
+	print("2")
 	utxo_set = utxo.get_utxo_set(where, my_addr)
+	print("3")
 	fee = int((amount * 0.1) / 100)
 	balance = utxo.check_balance(utxo_set)
 	if balance < amount:

@@ -5,7 +5,6 @@ import server_commands
 import pending_pool as pp
 import json
 import argparse
-import requests
 import premine
 import config as cnf
 
@@ -16,7 +15,7 @@ class Cli(cmd.Cmd):
 		cmd.Cmd.__init__(self)
 		self.prompt = "฿ "
 		self.intro  = "\t\tWelcome to the miner cli\nHow to use? 'help'!!"
-		self.doc_header ="For detail information use 'help _command_')"
+		self.doc_header ="For detail information use 'help' command"
 		self.blockchain = pp.get_data("blockchain.pickle")
 		if (self.blockchain == False or is_premine == True):
 			try:

@@ -5,11 +5,19 @@ import json
 import requests
 import wallet
 import codecs
-# from ast import literal_eval
+
+import blockcypher
+import tx_validator as tx
+
+def get_balance(address):
+	if tx.availabilyty_of_address(address) == False:
+		print ("Address is invalid!")
+		return
+	satoshis = blockcypher.get_total_balance(address, coin_symbol='btc-testnet')
+	print (str(blockcypher.from_satoshis(satoshis, 'btc')) + " btc")
 
 def add_output(tx_output, n, tx_hash): 
 #####
-
 	new_data = {
 		'tx_hash_big_endian':tx_hash,
 		'tx_output_n':n,
@@ -92,24 +100,19 @@ def get_script(txid, vout):
 
 
 def get_utxo_set(which, address):
-	if which == 'Testnet':
-		resp = requests.get('https://testnet.blockchain.info/unspent?active=%s' % address)
-		print (resp)
-		# utxo_set = json.load(resp.text)["unspent_outputs"]
+	count = 0
+	utxo_set = pp.get_data('utxo.pickle')
+	if utxo_set != False:
+		for elem in utxo_set:
+			if (elem['address'] == address):
+				utxo_set = elem['unspent_outputs']
+				count = 1
+				break
 	else:
-		i = 0
-		utxo_set = pp.get_data('utxo.pickle')
-		if utxo_set != False:
-			for elem in utxo_set:
-				if (elem['address'] == address):
-					utxo_set = elem['unspent_outputs']
-					i = 1
-					break
-		else:
-			print("Error there is not utxo! Use miner cli!")
-			return None
-		if i != 1:
-			utxo_set = 0
+		print("Error there is not utxo! Use miner cli!")
+		return None
+	if count != 1:
+		utxo_set = 0
 	return utxo_set
 
 
