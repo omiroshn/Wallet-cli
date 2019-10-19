@@ -34,11 +34,6 @@ class Cli(cmd.Cmd):
 		# self.mine = True
 		# self.utxo = utxo_set.Utxo_pool()
 
-	def mine(self):
-		chain = self.blockchain.chain
-		self.blockchain.mine(chain[0].hash)
-		print("New block hash", self.blockchain.chain[0].hash)
-
 	def do_mine(self, args):
 		"""mine - start mining process. Mine block with getting transactions 
 		from pending pool, adding coinbase transaction with miner address from a file,
@@ -48,17 +43,18 @@ class Cli(cmd.Cmd):
 		while True:
 			try:
 				fd = open('mine', 'r')
+				m = fd.readline()
+				if m == '3':
+					print("In file mine is '3', so it's time to do something else!\nFor starting mine process, please write in file mine '1' and start command mine")
+					return
+				while m == '1':
+					self.blockchain.mine(self.blockchain.chain[0].hash)
+					print("New block hash", self.blockchain.chain[0].hash)
+					m = '0'
+					fd.close()
 			except:
-				print("Mining has been stoped(((")
+				print("\nMining was stoped.")
 				break
-			m = fd.readline()
-			if m == '3':
-				print("In file mine is '3', so it's time to do something else!\nFor starting mine process, please write in file mine '1' and start command mine")
-				return
-			while m == '1':
-				self.mine()
-				m = '0'
-				fd.close()
 	
 	def do_exit(self, args):
 		"""exit"""

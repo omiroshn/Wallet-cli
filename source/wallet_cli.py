@@ -61,25 +61,20 @@ class Cli(cmd.Cmd):
 		self.swtransaction = 1
 		self.private_key = '0'
 
-	"""
-	Generating new private key and public key. Bitcoin is address to the file.
-	"""
+	
 	def do_new(self, args):
+		"""Generating new private key and public key. Bitcoin is address to the file."""
 		self.private_key = generate_private(0)
 	
-	"""
-	Import private key (import in a WIF)
-	"""
 	def do_import(self, args):
+		"""Import private key (import in a WIF)"""
 		if len(args.split(' ')) == 1:
 			self.private_key = import_command(args)
 		else:
 			print(RED + "Usage:\timport /path/to/file/with/WIF/Private/Key")
 
-	"""
-	recipient address and amount
-	"""
 	def do_send(self, args):
+		"""recipient address and amount"""
 		if self.private_key == '0':
 			print(RED + "Import private key firstly!")
 			return

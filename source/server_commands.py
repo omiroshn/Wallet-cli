@@ -56,10 +56,10 @@ def chain_length():
         data = pending_pool.get_data('blockchain.pickle')
     if data != False:
         if type(data) is dict:
-            lens = str(data['chain'][0]['height'])
+            length = str(data['chain'][0]['height'])
         else:
-            lens = str(data.chain[0].height)
-        return lens
+            length = str(data.chain[0].height)
+        return length
     else:
         return("0")
 
@@ -74,7 +74,7 @@ def last_block():
                 block = data.chain[0]
             return str(block)
         else:
-            return("Something get wrong!\nYou have no chain")
+            return("Something went wrong!\nYou have no chain.")
 
 @app.route('/block', methods=['GET'])
 def block_height():
@@ -82,14 +82,24 @@ def block_height():
         height = str(request.args.get('height'))
         data = pending_pool.get_data('blockchain.pickle')
         if data != False:
-            i = len(data.chain) - 1
-            while(i >= 0):
-                if (int(data.chain[i].height) == int(height)):
-                    return str(data.chain[i])
-                i -= 1
-            return "No such block!"
+            if type(data) is dict:
+                length = str(data['chain'][0]['height'])
+                i = int(length) - 1
+                while(i >= 0):
+                    if (int(data['chain'][i]['height']) == int(height)):
+                        return str(data['chain'][i])
+                    i -= 1
+                return "No such block!"
+            else:
+                length = str(data.chain[0].height)
+                i = int(length) - 1
+                while(i >= 0):
+                    if (int(data.chain[i].height) == int(height)):
+                        return str(data.chain[i])
+                    i -= 1
+                return "No such block!"
         else:
-            return "There no chain data!"
+            return("Something went wrong!\nYou have no chain.")
 
 @app.route('/balance', methods=['GET'])
 def get_balance():

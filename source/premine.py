@@ -46,7 +46,6 @@ def premine_mode(pubkeys, minercli):
 		f.write(addr3)
 
 	walletcli = wallet_cli.Cli()
-	# minercli = miner_cli.Cli()
 
 	for i in range(2):
 		minercli.mine()

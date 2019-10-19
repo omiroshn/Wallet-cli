@@ -17,7 +17,6 @@ def get_balance(address):
 	print (str(blockcypher.from_satoshis(satoshis, 'btc')) + " btc")
 
 def add_output(tx_output, n, tx_hash): 
-#####
 	new_data = {
 		'tx_hash_big_endian':tx_hash,
 		'tx_output_n':n,
@@ -34,18 +33,13 @@ def add_output(tx_output, n, tx_hash):
 			'value':tx_output['Value']
 		}]
 	}
-#####
 
 	i = 0
 	utxo_set = pp.get_data('utxo.pickle')
 
-
-	# if type(utxo_set) is str:
-	# 	utxo_set = literal_eval(utxo_set)
 	if utxo_set == False:
 		utxo_set = []
 	else:
-		# lens = len(utxo_set) ЗАЧЕМ????
 		for elem in utxo_set:
 			if (elem['address'] == tx_output['address']):
 				i = 1

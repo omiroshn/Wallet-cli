@@ -73,16 +73,10 @@ class Transaction():
 		self.sigwit = 0
 		self.input_count = self.count_arg(inputs)
 		self.inputs = []
-		# if self.input_count == '01':
-		# 	self.inputs.append(inputs)
-		# else:
 		for elem in inputs:
 			self.inputs.append(elem)
 		self.output_count = self.count_arg(outputs)
 		self.outputs = []
-		# if self.output_count == '01':
-		# 	self.outputs.append(outputs)
-		# else:
 		for elem in outputs:
 			self.outputs.append(elem)
 		self.locktime = get_int_lnf(locktime, 8)
