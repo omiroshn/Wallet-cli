@@ -44,13 +44,9 @@ class Cli(cmd.Cmd):
 			try:
 				fd = open('mine', 'r')
 				m = fd.readline()
-				if m == '3':
-					print("In file mine is '3', so it's time to do something else!\nFor starting mine process, please write in file mine '1' and start command mine")
-					return
-				while m == '1':
+				if m == '1':
 					self.blockchain.mine(self.blockchain.chain[0].hash)
 					print("New block hash", self.blockchain.chain[0].hash)
-					m = '0'
 					fd.close()
 			except:
 				print("\nMining was stoped.")
